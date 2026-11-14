@@ -1,0 +1,11 @@
+{
+  "name": "mailcow-login-theme",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -c tailwind.config.js -i input.css -o ../custom/web/css/login.css --minify",
+    "watch": "tailwindcss -c tailwind.config.js -i input.css -o ../custom/web/css/login.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

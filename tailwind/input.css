@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Branding -------------------------------------------------------- */
+:root {
+  /* Flowbite primary (blue). Space-separated RGB. */
+  --mc-primary-50:  235 245 255;
+  --mc-primary-300: 164 202 254;
+  --mc-primary-500: 63 131 248;
+  --mc-primary-600: 28 100 242;
+  --mc-primary-700: 26 86 219;
+
+  /* Background image of the right-hand panel. Replace the file or change this URL. */
+  --mc-login-bg: url('/img/custom/login-bg.svg');
+}
+
+/* ---- Minimal scoped reset (replaces Tailwind preflight) -------------- */
+.mc-login, .mc-login *, .mc-login ::before, .mc-login ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+:root:has(#dark-mode-theme) .mc-login, :root:has(#dark-mode-theme) .mc-login *,
+:root:has(#dark-mode-theme) .mc-login ::before, :root:has(#dark-mode-theme) .mc-login ::after {
+  border-color: #374151;
+}
+.mc-login summary { list-style: none; }
+.mc-login summary::-webkit-details-marker { display: none; }
+.mc-login input, .mc-login button { font-family: inherit; }
+
+/* ---- Right-hand background panel ------------------------------------- */
+.mc-login-bg {
+  background-image: var(--mc-login-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* subtle dimming in dark mode so a bright photo doesn't glare */
+:root:has(#dark-mode-theme) .mc-login-bg::after {
+  content: ''; position: absolute; inset: 0; background: rgb(0 0 0 / .35);
+}

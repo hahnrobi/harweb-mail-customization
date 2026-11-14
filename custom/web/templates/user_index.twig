@@ -1,0 +1,194 @@
+{#
+  Custom mailcow login page (Flowbite "login with illustration" layout,
+  right-hand illustration replaced by a background image).
+
+  Based on upstream data/web/templates/user_index.twig. All mailcow variables,
+  language strings, form field names and element IDs used by mailcow's JS
+  (#dark-mode-toggle, #fido2-login, #fido2-alerts, .main-logo, .main-logo-dark,
+  .rot-enc) are kept intact. Compare with upstream after every mailcow update.
+#}
+{% extends 'base.twig' %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+{% set alert_styles = {
+  'info':    'tw-bg-blue-50 tw-text-blue-800 dark:tw-bg-gray-800 dark:tw-text-blue-400',
+  'success': 'tw-bg-green-50 tw-text-green-800 dark:tw-bg-gray-800 dark:tw-text-green-400',
+  'warning': 'tw-bg-yellow-50 tw-text-yellow-800 dark:tw-bg-gray-800 dark:tw-text-yellow-300',
+  'danger':  'tw-bg-red-50 tw-text-red-800 dark:tw-bg-gray-800 dark:tw-text-red-400'
+} %}
+{% set link_cls = 'tw-font-medium tw-text-primary-600 tw-no-underline hover:tw-text-primary-700 hover:tw-underline dark:tw-text-primary-500 dark:hover:tw-text-primary-300' %}
+{% set btn_secondary = 'tw-flex tw-w-full tw-items-center tw-justify-center tw-gap-2 tw-rounded-lg tw-border tw-border-gray-200 tw-bg-white tw-px-5 tw-py-2.5 tw-text-sm tw-font-medium tw-text-gray-900 tw-no-underline hover:tw-bg-gray-100 hover:tw-text-primary-700 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-100 dark:tw-border-gray-600 dark:tw-bg-gray-800 dark:tw-text-gray-200 dark:hover:tw-bg-gray-700 dark:hover:tw-text-white dark:focus:tw-ring-gray-700' %}
+
+<link rel="stylesheet" href="/css/custom/login.css">
+
+{# Full-screen layer; covers mailcow's default container and footer. #}
+<div class="mc-login tw-fixed tw-inset-0 tw-z-[1000] tw-overflow-y-auto tw-bg-white tw-text-gray-900 dark:tw-bg-gray-900 dark:tw-text-white">
+  <div class="tw-grid tw-min-h-full lg:tw-grid-cols-2">
+
+    {# ============ Left: form ============ #}
+    <main class="tw-flex tw-min-h-screen tw-flex-col tw-px-6 tw-py-6 sm:tw-px-12">
+
+      {# Top bar: logo + dark mode + language #}
+      <header class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+        <a href="/" class="tw-inline-flex">
+          <img class="main-logo tw-h-10 tw-w-auto" src="{{ logo|default('/img/cow_mailcow.svg') }}" alt="mailcow">
+          <img class="main-logo-dark tw-h-10 tw-w-auto" src="{{ logo_dark|default('/img/cow_mailcow.svg') }}" alt="mailcow-logo-dark">
+        </a>
+
+        <div class="tw-flex tw-items-center tw-gap-4">
+          <label class="tw-relative tw-inline-flex tw-cursor-pointer tw-items-center tw-gap-2 tw-text-gray-500 dark:tw-text-gray-400" title="Dark mode">
+            <i class="bi bi-moon-fill"></i>
+            <input type="checkbox" id="dark-mode-toggle" class="tw-peer tw-sr-only">
+            <span class="tw-relative tw-h-5 tw-w-9 tw-rounded-full tw-bg-gray-200 after:tw-absolute after:tw-start-[2px] after:tw-top-[2px] after:tw-h-4 after:tw-w-4 after:tw-rounded-full after:tw-bg-white after:tw-transition-all after:tw-content-[''] peer-checked:tw-bg-primary-600 peer-checked:after:tw-translate-x-4 peer-focus-visible:tw-ring-4 peer-focus-visible:tw-ring-primary-300 dark:tw-bg-gray-600"></span>
+          </label>
+
+          {% if not oauth2_request and mailcow_locale %}
+          {% if available_languages|length > 1 %}
+          <details class="tw-relative" id="mc-lang">
+            <summary class="tw-flex tw-cursor-pointer tw-items-center tw-gap-1 tw-rounded-lg tw-px-2 tw-py-1.5 tw-text-gray-500 hover:tw-bg-gray-100 dark:tw-text-gray-400 dark:hover:tw-bg-gray-800" aria-label="Language">
+              <span class="flag-icon flag-icon-{{ mailcow_locale[-2:] }}"></span>
+              <i class="bi bi-chevron-down tw-text-xs"></i>
+            </summary>
+            <ul class="tw-absolute tw-right-0 tw-z-10 tw-mt-2 tw-max-h-72 tw-w-52 tw-list-none tw-overflow-y-auto tw-rounded-lg tw-border tw-border-gray-100 tw-bg-white tw-p-1 tw-shadow-lg dark:tw-border-gray-600 dark:tw-bg-gray-700">
+              {% for key, val in available_languages %}
+              <li>
+                <a class="tw-flex tw-items-center tw-gap-2 tw-rounded-md tw-px-3 tw-py-2 tw-text-sm tw-no-underline hover:tw-bg-gray-100 dark:hover:tw-bg-gray-600 {% if mailcow_locale == key %}tw-bg-gray-100 tw-font-semibold tw-text-primary-700 hover:tw-text-primary-700 dark:tw-bg-gray-600 dark:tw-text-white dark:hover:tw-text-white{% else %}tw-text-gray-700 hover:tw-text-gray-900 dark:tw-text-gray-200 dark:hover:tw-text-white{% endif %}" href="?{{ query_string({'lang': key}) }}">
+                  <span class="flag-icon flag-icon-{{ key[-2:] }}"></span>{{ val }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </details>
+          {% else %}
+          <span class="tw-px-2 tw-py-1.5"><span class="flag-icon flag-icon-{{ mailcow_locale[-2:] }}"></span></span>
+          {% endif %}
+          {% endif %}
+        </div>
+      </header>
+
+      {# Centered card #}
+      <div class="tw-flex tw-flex-1 tw-items-center tw-justify-center tw-py-10">
+        <div class="tw-w-full tw-max-w-md">
+
+          {% if ui_texts.ui_announcement_text and ui_texts.ui_announcement_active %}
+          <div class="rot-enc ui-announcement-alert tw-mb-6 tw-rounded-lg tw-p-4 tw-text-sm {{ alert_styles[ui_texts.ui_announcement_type]|default(alert_styles.info) }}" role="alert">{{ ui_texts.ui_announcement_text|rot13 }}</div>
+          {% endif %}
+
+          <h1 class="tw-mb-6 tw-mt-0 tw-text-2xl tw-font-bold tw-leading-tight tw-tracking-tight tw-text-gray-900 dark:tw-text-white">
+            {% if oauth2_request %}{{ lang.oauth2.authorize_app }}{% else %}{{ ui_texts.main_name|raw }}{% endif %}
+          </h1>
+
+          {% if is_mobileconfig %}
+          <div class="tw-mb-6 tw-rounded-lg tw-p-4 tw-text-sm {{ alert_styles.info }}" role="alert">{{ lang.login.mobileconfig_info }}</div>
+          {% endif %}
+
+          {% if custom_login.force_sso != 1 %}
+          <form method="post" autofill="off" class="tw-space-y-5">
+            <div>
+              <label for="login_user" class="tw-mb-2 tw-block tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">{{ lang.login.username }}</label>
+              <div class="tw-relative">
+                <div class="tw-pointer-events-none tw-absolute tw-inset-y-0 tw-left-0 tw-flex tw-items-center tw-pl-3 tw-text-gray-500 dark:tw-text-gray-400"><i class="bi bi-person-fill"></i></div>
+                <input name="login_user" autocorrect="off" autocapitalize="none" type="{% if is_mobileconfig %}email{% else %}text{% endif %}" id="login_user" class="tw-block tw-w-full tw-rounded-lg tw-border tw-border-gray-300 tw-bg-gray-50 tw-p-2.5 tw-pl-10 tw-text-sm tw-text-gray-900 placeholder:tw-text-gray-400 focus:tw-border-primary-600 focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-primary-600 dark:tw-border-gray-600 dark:tw-bg-gray-700 dark:tw-text-white dark:placeholder:tw-text-gray-400 dark:focus:tw-border-primary-500 dark:focus:tw-ring-primary-500" placeholder="{{ lang.login.email }}" required="" autofocus="" autocomplete="username">
+              </div>
+            </div>
+
+            <div>
+              <label for="pass_user" class="tw-mb-2 tw-block tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">{{ lang.login.password }}</label>
+              <div class="tw-relative">
+                <div class="tw-pointer-events-none tw-absolute tw-inset-y-0 tw-left-0 tw-flex tw-items-center tw-pl-3 tw-text-gray-500 dark:tw-text-gray-400"><i class="bi bi-lock-fill"></i></div>
+                <input name="pass_user" type="password" id="pass_user" class="tw-block tw-w-full tw-rounded-lg tw-border tw-border-gray-300 tw-bg-gray-50 tw-p-2.5 tw-pl-10 tw-pr-10 tw-text-sm tw-text-gray-900 placeholder:tw-text-gray-400 focus:tw-border-primary-600 focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-primary-600 dark:tw-border-gray-600 dark:tw-bg-gray-700 dark:tw-text-white dark:placeholder:tw-text-gray-400 dark:focus:tw-border-primary-500 dark:focus:tw-ring-primary-500" placeholder="{{ lang.login.password }}" required="" autocomplete="current-password">
+                <button type="button" class="tw-absolute tw-inset-y-0 tw-right-0 tw-flex tw-cursor-pointer tw-items-center tw-border-0 tw-bg-transparent tw-pr-3 tw-text-gray-500 hover:tw-text-gray-700 dark:tw-text-gray-400 dark:hover:tw-text-gray-200" onclick="var i=document.getElementById('pass_user'),ic=this.querySelector('i');if(i.type==='password'){i.type='text';ic.className='bi bi-eye-slash';}else{i.type='password';ic.className='bi bi-eye';}" tabindex="-1" aria-label="Toggle password visibility"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+
+            <div class="tw-flex tw-items-center tw-justify-end tw-text-sm">
+              <a href="/reset-password" class="{{ link_cls }}">{{ lang.login.forgot_password }}</a>
+            </div>
+
+            <button type="submit" value="Login" class="tw-w-full tw-cursor-pointer tw-rounded-lg tw-border-0 tw-bg-primary-600 tw-px-5 tw-py-2.5 tw-text-center tw-text-sm tw-font-medium tw-text-white hover:tw-bg-primary-700 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-primary-300 dark:tw-bg-primary-600 dark:hover:tw-bg-primary-700 dark:focus:tw-ring-primary-700">{{ lang.login.login }}</button>
+          </form>
+
+          <div class="tw-my-6 tw-flex tw-items-center tw-gap-3">
+            <span class="tw-h-px tw-flex-1 tw-bg-gray-200 dark:tw-bg-gray-700"></span>
+            <span class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-gray-500 dark:tw-text-gray-400">{{ lang.login.other_logins }}</span>
+            <span class="tw-h-px tw-flex-1 tw-bg-gray-200 dark:tw-bg-gray-700"></span>
+          </div>
+          {% endif %}
+
+          <div class="tw-flex tw-flex-col tw-gap-3">
+            {% if has_iam_sso %}
+            <a class="{{ btn_secondary }}" href="/?iam_sso=1"><i class="bi bi-cloud-arrow-up-fill"></i> {{ lang.admin.iam_sso }}</a>
+            {% endif %}
+            {% if custom_login.force_sso != 1 %}
+            <a class="{{ btn_secondary }}" href="#" id="fido2-login"><i class="bi bi-shield-fill-check"></i> {{ lang.login.fido2_webauthn }}</a>
+            {% endif %}
+          </div>
+
+          {% if login_delay %}
+          <div class="tw-mt-6 tw-rounded-lg tw-p-4 tw-text-sm {{ alert_styles.info }}" role="alert">{{ lang.login.delayed|format(login_delay) }}</div>
+          {% endif %}
+          <div class="tw-my-4 tw-text-sm" id="fido2-alerts"></div>
+
+          {% if not oauth2_request and (mailcow_apps or app_links) and not hide_mailcow_apps %}
+          <h2 class="tw-mb-3 tw-mt-8 tw-flex tw-items-center tw-gap-2 tw-text-base tw-font-semibold tw-text-gray-900 dark:tw-text-white">
+            <i class="bi bi-link-45deg"></i> {{ ui_texts.apps_name|raw }}
+          </h2>
+          <div class="tw-grid tw-grid-cols-1 tw-gap-2 sm:tw-grid-cols-2">
+            {% for app in mailcow_apps %}
+              {% if not app.hide %}
+                {% if not skip_sogo or not is_uri('SOGo', app.link) %}
+                <a href="{{ app.link }}" role="button" {% if app.description %}title="{{ app.description }}"{% endif %} class="{{ btn_secondary }}">{{ app.name }}</a>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% for row in app_links %}
+              {% for key, val in row %}
+                {% if not val.hide %}
+                <a href="{{ val.link }}" role="button" class="{{ btn_secondary }}">{{ key }}</a>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      {# Footer: admin / domain admin quick links + help #}
+      <footer class="tw-mx-auto tw-w-full tw-max-w-md tw-pb-2 tw-text-center tw-text-sm tw-text-gray-500 dark:tw-text-gray-400">
+        {% if custom_login.hide_admin_quicklink != 1 or custom_login.hide_domainadmin_quicklink != 1 %}
+        <p class="tw-m-0">
+          {{ lang.login.login_linkstext }}<br>
+          {% if custom_login.hide_admin_quicklink != 1 %}<a href="/admin" class="{{ link_cls }}">{{ lang.login.login_admintext }}</a>{% endif %}
+          {% if custom_login.hide_admin_quicklink != 1 and custom_login.hide_domainadmin_quicklink != 1 %}<span class="tw-mx-1">|</span>{% endif %}
+          {% if custom_login.hide_domainadmin_quicklink != 1 %}<a href="/domainadmin" class="{{ link_cls }}">{{ lang.login.login_domainadmintext }}</a>{% endif %}
+        </p>
+        {% endif %}
+
+        {% if not oauth2_request and ui_texts.help_text %}
+        <details class="tw-mt-4 tw-text-left">
+          <summary class="tw-flex tw-cursor-pointer tw-items-center tw-justify-center tw-gap-2 {{ link_cls }}">
+            <i class="bi bi-patch-question-fill"></i> {{ lang.start.help }}
+          </summary>
+          <div class="tw-mt-3 tw-rounded-lg tw-bg-gray-50 tw-p-4 tw-text-gray-700 dark:tw-bg-gray-800 dark:tw-text-gray-300">{{ ui_texts.help_text|raw }}</div>
+        </details>
+        {% endif %}
+      </footer>
+    </main>
+
+    {# ============ Right: background image (desktop only) ============ #}
+    <aside class="mc-login-bg tw-relative tw-hidden lg:tw-block" aria-hidden="true"></aside>
+
+  </div>
+</div>
+
+<script>
+  // Close the language menu when clicking elsewhere
+  document.addEventListener('click', function (e) {
+    var d = document.getElementById('mc-lang');
+    if (d && d.open && !d.contains(e.target)) d.open = false;
+  });
+</script>
+{% endblock %}

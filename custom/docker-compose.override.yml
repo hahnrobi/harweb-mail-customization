@@ -1,0 +1,12 @@
+# Place next to mailcow's docker-compose.yml (mailcow-dockerized/docker-compose.override.yml).
+# Merge into your existing override file if you already have one.
+# Assumes the custom files live in ./data/custom/web/ (copy the "web" folder from this package there).
+services:
+  php-fpm-mailcow:            # renders the Twig templates
+    volumes:
+      - ./data/custom/web/templates/user_index.twig:/web/templates/user_index.twig:ro
+
+  nginx-mailcow:              # serves static files (CSS, images)
+    volumes:
+      - ./data/custom/web/css/login.css:/web/css/custom/login.css:ro
+      - ./data/custom/web/img:/web/img/custom:ro

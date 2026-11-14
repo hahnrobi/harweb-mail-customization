@@ -17,3 +17,5 @@ services:
   sogo-mailcow:               # SOGo colour theme (replaces the entry mailcow mounts for custom-theme.js)
     volumes:
       - ../harweb-mail-customization/custom/sogo/custom-theme.js:/usr/local/lib/GNUstep/SOGo/WebServerResources/js/theme.js:ro
+      # SOGo's pre-generated stock colours; emptied so the runtime theme above is not overridden
+      - ../harweb-mail-customization/custom/sogo/theme-default.css:/usr/local/lib/GNUstep/SOGo/WebServerResources/css/theme-default.css:ro

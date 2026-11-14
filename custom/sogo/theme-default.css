@@ -1,0 +1,7 @@
+/* Intentionally empty.
+ *
+ * SOGo ships a pre-generated theme-default.css containing the stock (teal/green) colours.
+ * It is loaded after the theme Angular Material generates at runtime from theme.js and
+ * therefore wins over it. Emptying it lets the custom palette from custom-theme.js apply.
+ * Mounted over WebServerResources/css/theme-default.css (see docker-compose.override.yml).
+ */

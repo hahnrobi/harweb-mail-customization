@@ -45,7 +45,7 @@
         'hue-2': '700',    // sidebar toolbar
         'hue-3': 'A700'
       })
-      .accentPalette('pink', {   // FAB buttons; change to 'brand' or e.g. 'amber' if wanted
+      .accentPalette('brand', {  // selected rows, FAB buttons, checkboxes
         'default': '600',
         'hue-1': '300',    // centre list toolbar
         'hue-2': '300',

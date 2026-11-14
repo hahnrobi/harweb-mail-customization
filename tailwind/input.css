@@ -22,19 +22,22 @@
 }
 
 /* ---- Minimal scoped reset (replaces Tailwind preflight) -------------- */
-.mc-login, .mc-login *, .mc-login ::before, .mc-login ::after {
-  box-sizing: border-box;
-  border-width: 0;
-  border-style: solid;
-  border-color: #e5e7eb;
+/* :where() keeps specificity at 0 so utilities such as tw-border / tw-border-gray-300 always win */
+@layer base {
+  :where(.mc-login, .mc-login *, .mc-login ::before, .mc-login ::after) {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: #e5e7eb;
+  }
+  :where(:root:has(#dark-mode-theme) .mc-login, :root:has(#dark-mode-theme) .mc-login *,
+         :root:has(#dark-mode-theme) .mc-login ::before, :root:has(#dark-mode-theme) .mc-login ::after) {
+    border-color: #374151;
+  }
+  .mc-login summary { list-style: none; }
+  .mc-login summary::-webkit-details-marker { display: none; }
+  .mc-login input, .mc-login button { font-family: inherit; }
 }
-:root:has(#dark-mode-theme) .mc-login, :root:has(#dark-mode-theme) .mc-login *,
-:root:has(#dark-mode-theme) .mc-login ::before, :root:has(#dark-mode-theme) .mc-login ::after {
-  border-color: #374151;
-}
-.mc-login summary { list-style: none; }
-.mc-login summary::-webkit-details-marker { display: none; }
-.mc-login input, .mc-login button { font-family: inherit; }
 
 /* ---- Right-hand background panel ------------------------------------- */
 .mc-login-bg {

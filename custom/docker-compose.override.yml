@@ -1,12 +1,19 @@
-# Place next to mailcow's docker-compose.yml (mailcow-dockerized/docker-compose.override.yml).
-# Merge into your existing override file if you already have one.
-# Assumes the custom files live in ./data/custom/web/ (copy the "web" folder from this package there).
+# Place as mailcow-dockerized/docker-compose.override.yml (merge if you already have one).
+# Assumes this repo is cloned next to mailcow, i.e. /opt/harweb-mail-customization
+# and mailcow lives in /opt/mailcow-dockerized. Relative paths resolve from the compose file.
+#
+# One-time, so Docker can mount into the read-only ./data/web:
+#   mkdir -p data/web/css/custom data/web/img/custom && touch data/web/css/custom/login.css
 services:
   php-fpm-mailcow:            # renders the Twig templates
     volumes:
-      - ./data/custom/web/templates/user_index.twig:/web/templates/user_index.twig:ro
+      - ../harweb-mail-customization/custom/web/templates/user_index.twig:/web/templates/user_index.twig:ro
 
   nginx-mailcow:              # serves static files (CSS, images)
     volumes:
-      - ./data/custom/web/css/login.css:/web/css/custom/login.css:ro
-      - ./data/custom/web/img:/web/img/custom:ro
+      - ../harweb-mail-customization/custom/web/css/login.css:/web/css/custom/login.css:ro
+      - ../harweb-mail-customization/custom/web/img:/web/img/custom:ro
+
+  sogo-mailcow:               # SOGo colour theme (replaces the entry mailcow mounts for custom-theme.js)
+    volumes:
+      - ../harweb-mail-customization/custom/sogo/custom-theme.js:/usr/local/lib/GNUstep/SOGo/WebServerResources/js/theme.js:ro

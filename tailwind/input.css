@@ -4,12 +4,18 @@
 
 /* ---- Branding -------------------------------------------------------- */
 :root {
-  /* Flowbite primary (blue). Space-separated RGB. */
-  --mc-primary-50:  235 245 255;
-  --mc-primary-300: 164 202 254;
-  --mc-primary-500: 63 131 248;
-  --mc-primary-600: 28 100 242;
-  --mc-primary-700: 26 86 219;
+  /* Brand scale generated from #2f4ead (= 600). Space-separated RGB. */
+  --mc-primary-50: 243 245 252;
+  --mc-primary-100: 227 232 247;
+  --mc-primary-200: 199 209 240;
+  --mc-primary-300: 158 176 229;
+  --mc-primary-400: 113 138 214;
+  --mc-primary-500: 69 100 196;
+  --mc-primary-600: 47 78 173;
+  --mc-primary-700: 39 65 144;
+  --mc-primary-800: 30 51 112;
+  --mc-primary-900: 23 38 84;
+  --mc-primary-950: 14 24 52;
 
   /* Background image of the right-hand panel. Replace the file or change this URL. */
   --mc-login-bg: url('/img/custom/wallhaven-xe8qxd.jpg');

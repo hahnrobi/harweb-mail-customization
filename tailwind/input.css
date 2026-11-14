@@ -12,7 +12,7 @@
   --mc-primary-700: 26 86 219;
 
   /* Background image of the right-hand panel. Replace the file or change this URL. */
-  --mc-login-bg: url('/img/custom/login-bg.svg');
+  --mc-login-bg: url('/img/custom/wallhaven-xe8qxd.jpg');
 }
 
 /* ---- Minimal scoped reset (replaces Tailwind preflight) -------------- */
